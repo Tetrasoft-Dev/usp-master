@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ao.jcardoso.libs.paginacao.PageRequestDTO;
 import ao.jcardoso.libs.paginacao.PageResponseDTO;
+import ao.jcardoso.libs.paginacao.PaginationUtils;
+import ao.jcardoso.libs.exception.BusinessException;
+import ao.jcardoso.libs.exception.ResourceNotFoundException;
 import gov.ao.usp.features.categoria.mapper.CategoriaEditMapper;
 import gov.ao.usp.features.categoria.mapper.CategoriaMapper;
 import gov.ao.usp.features.categoria.modelo.Categoria;
@@ -37,7 +40,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         log.info("Criando uma nova categoria: {}", req.getAbreviacao());
         if(reppository.existsByAbreviacao(req.getAbreviacao())){
             log.warn("Já existe uma categora como a descrição: {}", req.getAbreviacao());
-            throw new ConflictException("Já existe uma categora como a descrição: " + req.getAbreviacao());
+            throw new BusinessException("Já existe uma categora como a descrição: " + req.getAbreviacao());
         }
 
         Categoria categoria = mapper.toEntity(req);
@@ -45,7 +48,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         categoria.setStatus(Boolean.TRUE);
         var categoriaSalva = reppository.save(categoria);
 
-        log.info("Categoria criada com sucesso: {}", categoriaSalva.getAbreviacao);
+        log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());
 
         return mapper.toResponse(categoriaSalva);
     }
@@ -54,29 +57,29 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Transactional
     public CategoriaResponse editar(CategoriaEditRequest req) {
         log.info("Editar uma categoria: {}", req.getAbreviacao());
-        var categoria = reppository.findById(req.getId).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
+        var categoria = reppository.findById(req.getId()).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
 
         if(reppository.existsByAbreviacao(categoria.getAbreviacao())){
             log.warn("Já existe uma categora como a descrição: {}", req.getAbreviacao());
-            throw new ConflictException("Já existe uma categora como a descrição: " + req.getAbreviacao());
+            throw new BusinessException("Já existe uma categora como a descrição: " + req.getAbreviacao());
         }
 
         editMapper.updateEntityFromDto(req, categoria);
         var categoriaSalva = reppository.save(categoria);
 
-        log.info("Categoria criada com sucesso: {}", categoriaSalva.getAbreviacao);
+        log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());
         return mapper.toResponse(categoriaSalva);
     }
 
     @Override
     @Transactional
     public CategoriaResponse eliminar(UUID id) {
-        log.info("Eliminar categoria: {}", req.getAbreviacao());
+        log.info("Eliminar categoria: {}", id);
         var categoria = reppository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
         categoria.setStatus(false);
         reppository.save(categoria);
-        log.info("Eliminada a categoria: {}", req.getAbreviacao());
+        log.info("Eliminada a categoria: {}", id);
         return mapper.toResponse(categoria);
     }
 
@@ -86,7 +89,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         log.info("Buscar categoria por ID: {}", id);
         var categoria = reppository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
-        log.info("Categoria encontrada: {}",categoria.getAbreviacao());       
+        log.info("Categoria encontrada: {}",id);       
         return mapper.toResponse(categoria);
     }
 
@@ -96,11 +99,12 @@ public class CategoriaServiceImpl implements CategoriaService {
         log.info("Listando categorias filtrados da organização: {}", descricao);
         Pageable pageable = PaginationUtils.buildPageable(req);
 
-        Specification<CategoriaResponse> spec = CategoriaSpecifications.filtrar(nome, status);
-        Page<CategoriaResponse> page = reppository.findAll(spec, pageable);
+        Specification<Categoria> spec = CategoriaSpecifications.filtrar(descricao, status);
+        
+        Page<Categoria> page = reppository.findAll(spec, pageable);
 
         log.info("Categorias listados com sucesso. Total de registos encontrados: {}", page.getTotalElements());
-        return PaginationUtils.buildPageResponse(page);
+        return PaginationUtils.buildPageResponse(page, mapper::toResponse);
     }
 
 }

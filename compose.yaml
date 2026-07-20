@@ -1,5 +1,5 @@
 services:
-  # 1. Base de Dados PostgreSQL
+  # 1. Base de Dados PostgreSQL (Oficial Supabase)
   supabase-db:
     image: supabase/postgres:15.1.1.78
     container_name: supabase-db
@@ -17,7 +17,24 @@ services:
       timeout: 5s
       retries: 5
 
-  # 2. Serviço de Autenticação (GoTrue)
+ # 2. Postgres Meta (Atualizado para a versão estável recente)
+  supabase-meta:
+    image: supabase/postgres-meta:v0.84.2
+    container_name: supabase-meta
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: supabase-db
+      PG_META_DB_NAME: ${POSTGRES_DB}
+      PG_META_DB_USER: ${POSTGRES_USER}
+      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_META_DB_PORT: 5432
+    ports:
+      - "8085:8080"
+
+  # 3. Serviço de Autenticação (GoTrue)
   supabase-auth:
     image: supabase/gotrue:v2.143.0
     container_name: supabase-auth
@@ -27,6 +44,8 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
+      GOTRUE_API_EXTERNAL_URL: http://localhost:9999
+      API_EXTERNAL_URL: http://localhost:9999
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@supabase-db:5432/${POSTGRES_DB}?sslmode=disable
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
@@ -36,18 +55,26 @@ services:
     ports:
       - "9999:9999"
 
-  # 3. Painel Web de Gestão (Supabase Studio)
+  # 4. Painel Web de Gestão (Supabase Studio)
   supabase-studio:
     image: supabase/studio:latest
     container_name: supabase-studio
     depends_on:
       supabase-db:
         condition: service_healthy
+      supabase-meta:
+        condition: service_started
     environment:
       STUDIO_DEFAULT_ORGANIZATION: "Local Dev"
       STUDIO_DEFAULT_PROJECT: "Projeto Spring"
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      SUPABASE_URL: http://localhost:${KONG_PORT}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@supabase-db:5432/${POSTGRES_DB}
+      SUPABASE_PUBLIC_URL: https://github.dev
+      # CORREÇÃO: Adicione as duas linhas abaixo para o Studio localizar o Postgres
+      POSTGRES_HOST: supabase-db
+      POSTGRES_PORT: 5432
+      # Comunicação direta via rede interna do Docker
+      STUDIO_PG_META_URL: http://supabase-meta:8080
     ports:
       - "${STUDIO_PORT}:3000"
 

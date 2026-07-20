@@ -4,19 +4,19 @@ import java.util.UUID;
 
 import ao.jcardoso.libs.paginacao.PageRequestDTO;
 import ao.jcardoso.libs.paginacao.PageResponseDTO;
-import gov.ao.usp.features.depatamento.modelo.dto.DepatamentoRequest;
-import gov.ao.usp.features.depatamento.modelo.dto.DepatamentoEditRequest;
-import gov.ao.usp.features.depatamento.modelo.dto.DepatamentoResponse;
+import gov.ao.usp.features.departamento.modelo.dto.DepartamentoRequest;
+import gov.ao.usp.features.departamento.modelo.dto.DepartamentoEditRequest;
+import gov.ao.usp.features.departamento.modelo.dto.DepartamentoResponse;
 
-public interface DepatamentoService {
+public interface DepartamentoService {
 
-    DepatamentoResponse criar(DepatamentoRequest req);
+    DepartamentoResponse criar(DepartamentoRequest req);
 
-    DepatamentoResponse editar(DepatamentoEditRequest req);
+    DepartamentoResponse editar(DepartamentoEditRequest req);
 
-    DepatamentoResponse eliminar(UUID id);
+    DepartamentoResponse eliminar(UUID id);
 
-    DepatamentoResponse burcarPorID(UUID id);
+    DepartamentoResponse burcarPorID(UUID id);
 
-    PageResponseDTO<DepatamentoResponse> pesguisaEspecifica(PageRequestDTO req, String descricao, Boolean status);
+    PageResponseDTO<DepartamentoResponse> pesguisaEspecifica(PageRequestDTO req, String descricao, Boolean status);
 }
