@@ -5,13 +5,14 @@ import java.util.UUID;
 import ao.jcardoso.libs.paginacao.PageRequestDTO;
 import ao.jcardoso.libs.paginacao.PageResponseDTO;
 import gov.ao.usp.features.categoria.modelo.dto.CategoriaRequest;
+import gov.ao.usp.features.categoria.modelo.dto.CategoriaEditRequest;
 import gov.ao.usp.features.categoria.modelo.dto.CategoriaResponse;
 
 public interface CategoriaService {
 
     CategoriaResponse criar(CategoriaRequest req);
 
-    CategoriaResponse editar(CategoriaRequest req);
+    CategoriaResponse editar(CategoriaEditRequest req);
 
     CategoriaResponse eliminar(UUID id);
 
