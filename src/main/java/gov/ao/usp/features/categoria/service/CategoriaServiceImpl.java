@@ -12,6 +12,9 @@ import ao.jcardoso.libs.paginacao.PageResponseDTO;
 import ao.jcardoso.libs.paginacao.PaginationUtils;
 import ao.jcardoso.libs.exception.BusinessException;
 import ao.jcardoso.libs.exception.ResourceNotFoundException;
+import gov.ao.usp.features.auditoria.modelo.Auditoria;
+import gov.ao.usp.features.auditoria.service.AuditoriaService;
+import gov.ao.usp.features.auditoria.service.AuditoriaServiceImpl;
 import gov.ao.usp.features.categoria.mapper.CategoriaEditMapper;
 import gov.ao.usp.features.categoria.mapper.CategoriaMapper;
 import gov.ao.usp.features.categoria.modelo.Categoria;
@@ -22,6 +25,7 @@ import gov.ao.usp.features.categoria.repository.CategoriaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -33,21 +37,26 @@ public class CategoriaServiceImpl implements CategoriaService {
     private CategoriaRepository reppository;
     private CategoriaMapper mapper;
     private CategoriaEditMapper editMapper;
+    private AuditoriaService service;
 
     @Override
     @Transactional
     public CategoriaResponse criar(CategoriaRequest req) {
         log.info("Criando uma nova categoria: {}", req.getAbreviacao());
+       
+        
         if(reppository.existsByAbreviacao(req.getAbreviacao())){
             log.warn("Já existe uma categora como a descrição: {}", req.getAbreviacao());
             throw new BusinessException("Já existe uma categora como a descrição: " + req.getAbreviacao());
         }
-
+        
         Categoria categoria = mapper.toEntity(req);
         categoria.setPkCategoria(UUID.randomUUID());
         categoria.setStatus(Boolean.TRUE);
         var categoriaSalva = reppository.save(categoria);
 
+        service.registrar( "Categoria criada", "Criar", categoria.getPkCategoria() );
+        
         log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());
 
         return mapper.toResponse(categoriaSalva);

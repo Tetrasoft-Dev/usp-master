@@ -31,15 +31,15 @@ public class Auditoria {
     @Column(name = "ip_endereco", columnDefinition = "TEXT")
     private String ipEndereco;
 
-    @Column(name = "data_de_registro", nullable = true)
+    @Column(name = "data_de_registro", insertable = false, updatable = false )
     private LocalDateTime dataDeRegistro;
 
     @Column(name = "fk_utilizador", updatable = false, nullable = false)
-    private UUID fk_utilizador;
+    private UUID fkUtilizador;
 
     @Column(name = "funcionalidade", columnDefinition = "TEXT")
     private String funcionalidade;
 
     @Column(name = "fk_operacao", updatable = false, nullable = false)
-    private UUID fk_operacao;
+    private UUID fkOperacao;
 }
