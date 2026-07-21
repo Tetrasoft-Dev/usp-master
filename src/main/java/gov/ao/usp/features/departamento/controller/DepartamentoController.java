@@ -1,4 +1,4 @@
-package gov.ao.usp.features.categoria.controller;
+package gov.ao.usp.features.departamento.controller;
 
 import java.util.UUID;
 
@@ -21,45 +21,49 @@ import gov.ao.usp.features.categoria.modelo.dto.CategoriaEditRequest;
 import gov.ao.usp.features.categoria.modelo.dto.CategoriaRequest;
 import gov.ao.usp.features.categoria.modelo.dto.CategoriaResponse;
 import gov.ao.usp.features.categoria.service.CategoriaService;
+import gov.ao.usp.features.departamento.modelo.dto.DepartamentoEditRequest;
+import gov.ao.usp.features.departamento.modelo.dto.DepartamentoRequest;
+import gov.ao.usp.features.departamento.modelo.dto.DepartamentoResponse;
+import gov.ao.usp.features.departamento.service.DepartamentoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/usp/v1/categoria")
+@RequestMapping("/api/usp/v1/departamento")
 @RequiredArgsConstructor
-public class CategoriaController {
+public class DepartamentoController {
     
-    private final CategoriaService service;
+    private DepartamentoService service;
 
     @PostMapping
-    public ResponseEntity<ResponseHttp<CategoriaResponse>> criar(
-            @RequestBody @Valid CategoriaRequest req,
+    public ResponseEntity<ResponseHttp<DepartamentoResponse>> criar(
+            @RequestBody @Valid DepartamentoRequest req,
         HttpServletRequest request) {
         var response = service.criar(req);
-        return ResponseHttpBuilder.ok(" Categoria criada com sucesso.", response);
+        return ResponseHttpBuilder.ok(" Departamento criado com sucesso.", response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseHttp<CategoriaResponse>> burcarPorID( @PathVariable UUID id) {
+    public ResponseEntity<ResponseHttp<DepartamentoResponse>> burcarPorID( @PathVariable UUID id) {
         var response = service.burcarPorID(id);
-        return ResponseHttpBuilder.ok(" Categoria encontrada com sucesso.", response);
+        return ResponseHttpBuilder.ok(" Departamento encontrada com sucesso.", response);
     }
 
     @PatchMapping
-    public ResponseEntity<ResponseHttp<CategoriaResponse>> editar(CategoriaEditRequest req) {
+    public ResponseEntity<ResponseHttp<DepartamentoResponse>> editar(DepartamentoEditRequest req) {
         var response = service.editar(req);
-        return ResponseHttpBuilder.ok("Categiria atualizada com sucesso.", response);
+        return ResponseHttpBuilder.ok("Departamento atualizado com sucesso.", response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseHttp<CategoriaResponse>> eliminar(@PathVariable UUID id) {
+    public ResponseEntity<ResponseHttp<DepartamentoResponse>> eliminar(@PathVariable UUID id) {
         var response = service.eliminar(id);
-        return ResponseHttpBuilder.ok(" Categoria excluída com sucesso.", response);
+        return ResponseHttpBuilder.ok(" Departamento excluído com sucesso.", response);
     }
 
     @GetMapping("/pesquisar")
-    public ResponseEntity<ResponseHttp<PageResponseDTO<CategoriaResponse>>> listar(
+    public ResponseEntity<ResponseHttp<PageResponseDTO<DepartamentoResponse>>> listar(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
         @RequestParam(defaultValue = "createdDate") String sortBy,

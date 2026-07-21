@@ -39,10 +39,11 @@ public class AuditoriaServiceImpl implements AuditoriaService  {
         auditoria.setDescricao(descricao);
         auditoria.setFuncionalidade(funcionalidade);
         auditoria.setFkOperacao(operacao);
-        auditoria.setDataDeRegistro(LocalDateTime.now());
+        //auditoria.setDataDeRegistro(LocalDateTime.now());
         auditoria.setIpEndereco(ipUtil.getClientIp(request));
+        auditoria.setFkUtilizador(UUID.randomUUID());
 
-       /* auditoria.setFkUtilizador(
+       /*auditoria.setFkUtilizador(
                 securityUtil.getUtilizadorLogado()
         );*/
 

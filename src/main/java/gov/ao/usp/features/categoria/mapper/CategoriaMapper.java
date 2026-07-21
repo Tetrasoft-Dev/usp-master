@@ -13,7 +13,7 @@ import gov.ao.usp.features.categoria.modelo.dto.CategoriaResponse;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface CategoriaMapper extends BaseMapper<Categoria, CategoriaRequest, CategoriaResponse> {
 
-    CategoriaMapper INSTANCE = Mappers.getMapper(CategoriaMapper.class);
+    //CategoriaMapper INSTANCE = Mappers.getMapper(CategoriaMapper.class);
 
     @Mapping(source = "pkCategoria", target = "id")
     CategoriaResponse toResponse(Categoria entity);

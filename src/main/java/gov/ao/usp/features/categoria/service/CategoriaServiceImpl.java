@@ -1,6 +1,5 @@
 package gov.ao.usp.features.categoria.service;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,9 +11,7 @@ import ao.jcardoso.libs.paginacao.PageResponseDTO;
 import ao.jcardoso.libs.paginacao.PaginationUtils;
 import ao.jcardoso.libs.exception.BusinessException;
 import ao.jcardoso.libs.exception.ResourceNotFoundException;
-import gov.ao.usp.features.auditoria.modelo.Auditoria;
 import gov.ao.usp.features.auditoria.service.AuditoriaService;
-import gov.ao.usp.features.auditoria.service.AuditoriaServiceImpl;
 import gov.ao.usp.features.categoria.mapper.CategoriaEditMapper;
 import gov.ao.usp.features.categoria.mapper.CategoriaMapper;
 import gov.ao.usp.features.categoria.modelo.Categoria;
@@ -34,10 +31,10 @@ import java.util.UUID;
 @Transactional
 public class CategoriaServiceImpl implements CategoriaService {
 
-    private CategoriaRepository reppository;
-    private CategoriaMapper mapper;
-    private CategoriaEditMapper editMapper;
-    private AuditoriaService service;
+    private final CategoriaRepository reppository;
+    private final CategoriaMapper mapper;
+    private final CategoriaEditMapper editMapper;
+    private final AuditoriaService service;
 
     @Override
     @Transactional
@@ -55,7 +52,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         categoria.setStatus(Boolean.TRUE);
         var categoriaSalva = reppository.save(categoria);
 
-        service.registrar( "Categoria criada", "Criar", categoria.getPkCategoria() );
+        service.registrar( "Categoria", "Criar", categoria.getPkCategoria() );
         
         log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());
 
@@ -75,7 +72,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 
         editMapper.updateEntityFromDto(req, categoria);
         var categoriaSalva = reppository.save(categoria);
-
+        service.registrar( "Categoria", "Editar", categoria.getPkCategoria() );
         log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());
         return mapper.toResponse(categoriaSalva);
     }
@@ -88,6 +85,7 @@ public class CategoriaServiceImpl implements CategoriaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
         categoria.setStatus(false);
         reppository.save(categoria);
+        service.registrar( "Categoria", "Eliminar", categoria.getPkCategoria() );
         log.info("Eliminada a categoria: {}", id);
         return mapper.toResponse(categoria);
     }
@@ -98,6 +96,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         log.info("Buscar categoria por ID: {}", id);
         var categoria = reppository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
+        service.registrar( "Categoria", "BurcarPorID", id );
         log.info("Categoria encontrada: {}",id);       
         return mapper.toResponse(categoria);
     }
@@ -111,7 +110,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         Specification<Categoria> spec = CategoriaSpecifications.filtrar(descricao, status);
         
         Page<Categoria> page = reppository.findAll(spec, pageable);
-
+        service.registrar( "Categoria", "BurcarListaDeCategoria", null );
         log.info("Categorias listados com sucesso. Total de registos encontrados: {}", page.getTotalElements());
         return PaginationUtils.buildPageResponse(page, mapper::toResponse);
     }

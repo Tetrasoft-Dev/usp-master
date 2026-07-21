@@ -3,6 +3,8 @@ package gov.ao.usp.features.auditoria.modelo;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -31,7 +33,8 @@ public class Auditoria {
     @Column(name = "ip_endereco", columnDefinition = "TEXT")
     private String ipEndereco;
 
-    @Column(name = "data_de_registro", insertable = false, updatable = false )
+    @CreationTimestamp
+    @Column(name = "data_de_registro", updatable = false)
     private LocalDateTime dataDeRegistro;
 
     @Column(name = "fk_utilizador", updatable = false, nullable = false)
