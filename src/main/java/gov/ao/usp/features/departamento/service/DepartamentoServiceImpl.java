@@ -12,7 +12,7 @@ import ao.jcardoso.libs.paginacao.PageResponseDTO;
 import ao.jcardoso.libs.paginacao.PaginationUtils;
 import ao.jcardoso.libs.exception.BusinessException;
 import ao.jcardoso.libs.exception.ResourceNotFoundException;
-
+import gov.ao.usp.features.auditoria.service.AuditoriaService;
 import gov.ao.usp.features.departamento.mapper.DepartamentoEditMapper;
 import gov.ao.usp.features.departamento.mapper.DepartamentoMapper;
 import gov.ao.usp.features.departamento.modelo.Departamento;
@@ -32,9 +32,10 @@ import java.util.UUID;
 @Transactional
 public class DepartamentoServiceImpl implements DepartamentoService {
 
-    private DepartamentoRepository reppository;
-    private DepartamentoMapper mapper;
-    private DepartamentoEditMapper editMapper;
+    private final DepartamentoRepository reppository;
+    private final DepartamentoMapper mapper;
+    private final DepartamentoEditMapper editMapper;
+    private final AuditoriaService service;
 
     @Override
     @Transactional
@@ -49,7 +50,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         departamento.setPkDepartamento(UUID.randomUUID());
         departamento.setStatus(Boolean.TRUE);
         var departamentoSalva = reppository.save(departamento);
-
+        service.registrar( "Departamento", "Criar", departamento.getPkDepartamento() );
         log.info("Departamento criada com sucesso: {}", departamento.getAbreviacao());
 
         return mapper.toResponse(departamentoSalva);
@@ -68,7 +69,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
 
         editMapper.updateEntityFromDto(req, departamento);
         var departamentoSalva = reppository.save(departamento);
-
+        service.registrar( "Departamento", "Editar", departamento.getPkDepartamento() );
         log.info("Departamento criado com sucesso: {}", departamento.getAbreviacao());
         return mapper.toResponse(departamentoSalva);
     }
@@ -81,6 +82,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Departamento não encontrado."));
         departamento.setStatus(false);
         reppository.save(departamento);
+        service.registrar( "Departamento", "Eliminar", departamento.getPkDepartamento() );
         log.info("Eliminado o departamento: {}", id);
         return mapper.toResponse(departamento);
     }
@@ -91,6 +93,7 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         log.info("Buscar departamento por ID: {}", id);
         var departamento = reppository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Departamento não encontrado."));
+        service.registrar( "Departamento", "BuscarPorID", id );        
         log.info("Departamento encontrada: {}",id);       
         return mapper.toResponse(departamento);
     }
@@ -104,7 +107,6 @@ public class DepartamentoServiceImpl implements DepartamentoService {
         Specification<Departamento> spec = DepartamentoSpecifications.filtrar(descricao, status);
         
         Page<Departamento> pageEntidade = reppository.findAll(spec, pageable);
-
         log.info("Departamentos listados com sucesso. Total de registos encontrados: {}", pageEntidade.getTotalElements());
         
         return PaginationUtils.buildPageResponse(pageEntidade, mapper::toResponse);

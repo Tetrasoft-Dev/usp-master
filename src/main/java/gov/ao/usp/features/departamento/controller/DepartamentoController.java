@@ -17,10 +17,6 @@ import ao.jcardoso.libs.paginacao.PageRequestDTO;
 import ao.jcardoso.libs.paginacao.PageResponseDTO;
 import ao.jcardoso.libs.utils.http.ResponseHttp;
 import ao.jcardoso.libs.utils.http.ResponseHttpBuilder;
-import gov.ao.usp.features.categoria.modelo.dto.CategoriaEditRequest;
-import gov.ao.usp.features.categoria.modelo.dto.CategoriaRequest;
-import gov.ao.usp.features.categoria.modelo.dto.CategoriaResponse;
-import gov.ao.usp.features.categoria.service.CategoriaService;
 import gov.ao.usp.features.departamento.modelo.dto.DepartamentoEditRequest;
 import gov.ao.usp.features.departamento.modelo.dto.DepartamentoRequest;
 import gov.ao.usp.features.departamento.modelo.dto.DepartamentoResponse;
@@ -34,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DepartamentoController {
     
-    private DepartamentoService service;
+    private final DepartamentoService service;
 
     @PostMapping
     public ResponseEntity<ResponseHttp<DepartamentoResponse>> criar(
