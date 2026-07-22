@@ -87,4 +87,12 @@ public class AuthController {
         Perfil perfilAtualizado = service.atualizarPerfilPrincipal(jwt, request);
         return ResponseEntity.ok(perfilAtualizado);
     }
+
+    @GetMapping("/receptor/painel")
+    @PreAuthorize("hasRole('RECEPTOR')") // Bloqueio estrito via anotação de método
+    public ResponseEntity<Map<String, String>> acessarPainelReceptor() {
+         Map<String, String> resposta = new HashMap<>();
+        resposta.put("mensagem", "Acesso Concedido! Bem-vindo ao painel do Receptor de Artigos.");
+        return ResponseEntity.ok(resposta);
+   }
 }
