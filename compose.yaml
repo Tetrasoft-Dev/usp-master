@@ -1,7 +1,7 @@
 services:
-  # 1. Base de Dados PostgreSQL (Atualizada para a versão estável compatível)
+  # 1. Base de Dados PostgreSQL (Imagem oficial com esquemas Supabase pré-embutidos)
   supabase-db:
-    image: supabase/postgres:15.6.1.138
+    image: supabase/postgres:15.1.1.23
     container_name: supabase-db
     environment:
       POSTGRES_DB: postgres
@@ -11,14 +11,13 @@ services:
       - "5432:5432"
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # 2. Postgres Meta (Atualizado)
+  # 2. Postgres Meta (Interface de APIs para o banco de dados)
   supabase-meta:
     image: supabase/postgres-meta:v0.84.2
     container_name: supabase-meta
@@ -35,22 +34,25 @@ services:
     ports:
       - "8085:8080"
 
-  # 3. Serviço de Autenticação (GoTrue - Versão sincronizada com o banco)
+  # 3. Serviço de Autenticação (GoTrue - Versão LTS Estabilizada)
   supabase-auth:
-    image: supabase/gotrue:v2.143.0
+    image: supabase/gotrue:v2.132.2  # <-- FIXADO: Versão perfeitamente estável para Docker Compose
     container_name: supabase-auth
     depends_on:
       supabase-db:
         condition: service_healthy
-    command: ["auth"]
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
       GOTRUE_API_EXTERNAL_URL: http://localhost:9999
       API_EXTERNAL_URL: http://localhost:9999
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://postgres:postgres@supabase-db:5432/postgres?sslmode=disable
+      
+      # String de conexão otimizada
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:postgres@supabase-db:5432/postgres?sslmode=disable&options=-csearch_path%3Dauth,public
+      
       GOTRUE_DB_SEARCH_PATH: auth,public
+      GOTRUE_DB_AUTOMIGRATE: "true"
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_SITE_URL: http://localhost:8080
@@ -85,7 +87,7 @@ services:
       POSTGRES_PORT: 5432
       STUDIO_PG_META_URL: http://supabase-meta:8080
     ports:
-      - "${STUDIO_PORT}:3000"
+      - "3000:3000"
 
 volumes:
   supabase_db_data:

@@ -1,5 +1,7 @@
 package gov.ao.usp.sharead.exception;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-     /**
+        /**
          * RESOURCE NOT FOUND
          */
         @ExceptionHandler(ResourceNotFoundException.class)
@@ -147,5 +149,18 @@ public class GlobalExceptionHandler {
                 return ResponseEntity
                                 .status(HttpStatus.FORBIDDEN)
                                 .body(response);
+        }
+
+        @ExceptionHandler(RuntimeException.class)
+        public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex,
+                        HttpServletRequest request) {
+                Map<String, Object> erro = new HashMap<>();
+                erro.put("timestamp", Instant.now().toString());
+                erro.put("status", HttpStatus.BAD_REQUEST.value());
+                erro.put("error", "Erro na Operação");
+                erro.put("message", ex.getMessage());
+                erro.put("path", request.getRequestURI());
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
         }
 }

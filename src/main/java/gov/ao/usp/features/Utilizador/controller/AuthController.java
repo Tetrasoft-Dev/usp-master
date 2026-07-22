@@ -9,22 +9,25 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import gov.ao.usp.features.Utilizador.modelo.Perfil;
+import gov.ao.usp.features.Utilizador.modelo.dto.PerfilRequestDTO;
 import gov.ao.usp.features.Utilizador.repository.PerfilRepository;
+import gov.ao.usp.features.Utilizador.service.PerfilService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/usp/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final PerfilRepository perfilRepository;
-
-    // Injeção de dependência via construtor
-    public AuthController(PerfilRepository perfilRepository) {
-        this.perfilRepository = perfilRepository;
-    }
+    private final PerfilService service;
 
     /**
      * 1. ROTA PÚBLICA: Acessível por qualquer pessoa (definida no SecurityConfig)
@@ -74,5 +77,14 @@ public class AuthController {
         Map<String, String> resposta = new HashMap<>();
         resposta.put("mensagem", "Acesso concedido! Apenas utilizadores com perfil de administrador podem ver isto.");
         return ResponseEntity.ok(resposta);
+    }
+
+    @PutMapping("/atualizar")
+    public ResponseEntity<Perfil> atualizarNomeDoUtilizador(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody PerfilRequestDTO request) {
+        
+        Perfil perfilAtualizado = service.atualizarPerfilPrincipal(jwt, request);
+        return ResponseEntity.ok(perfilAtualizado);
     }
 }
