@@ -47,7 +47,7 @@ public class CategoriaController {
     }
 
     @PatchMapping
-    public ResponseEntity<ResponseHttp<CategoriaResponse>> editar(CategoriaEditRequest req) {
+    public ResponseEntity<ResponseHttp<CategoriaResponse>> editar(@RequestBody @Valid CategoriaEditRequest req) {
         var response = service.editar(req);
         return ResponseHttpBuilder.ok("Categiria atualizada com sucesso.", response);
     }
