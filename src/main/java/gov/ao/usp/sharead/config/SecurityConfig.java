@@ -42,6 +42,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/publico/**").permitAll() // Rotas de livre acesso
                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // Bloqueado, apenas administradores
+                .requestMatchers("/api/receptor/**").hasRole("RECEPTOR")                    
                 .anyRequest().authenticated() // Qualquer outra rota exige login (JWT)
             )
             
