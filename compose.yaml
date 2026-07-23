@@ -44,8 +44,12 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      GOTRUE_API_EXTERNAL_URL: http://localhost:9999
-      API_EXTERNAL_URL: http://localhost:9999
+      #GOTRUE_API_EXTERNAL_URL: http://localhost:9999
+      #API_EXTERNAL_URL: http://localhost:9999
+       # 1. Mude o URL Externo da API para o URL do Codespaces da porta 9999
+      GOTRUE_API_EXTERNAL_URL: https://refactored-pancake-6vvx77g55965h5q4j-9999.app.github.dev
+      API_EXTERNAL_URL: https://refactored-pancake-6vvx77g55965h5q4j-9999.app.github.dev
+      
       GOTRUE_DB_DRIVER: postgres
       
       # String de conexão otimizada
@@ -55,7 +59,13 @@ services:
       GOTRUE_DB_AUTOMIGRATE: "true"
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
-      GOTRUE_SITE_URL: http://localhost:8080
+      #GOTRUE_SITE_URL: http://localhost:8080
+       # 2. Mude o SITE_URL para o URL do seu Frontend do Codespaces
+      GOTRUE_SITE_URL: https://cuddly-goggles-v6xrgrv5rvx9hwrrj-3000.app.github.dev
+      
+      # 3. ADICIONE ESTA LINHA para libertar o CORS do Frontend no GoTrue
+      GOTRUE_URI_ALLOW_LIST: https://github.dev
+      
       GOTRUE_DISABLE_SIGNUPS: "false"
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_MAILER_AUTOCONFIRM: "true"
