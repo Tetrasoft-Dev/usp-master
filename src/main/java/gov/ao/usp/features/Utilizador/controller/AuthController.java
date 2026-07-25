@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import gov.ao.usp.features.Utilizador.modelo.Perfil;
 import gov.ao.usp.features.Utilizador.modelo.dto.PerfilRequestDTO;
+import gov.ao.usp.features.Utilizador.modelo.dto.PerfilResponseDTO;
 import gov.ao.usp.features.Utilizador.repository.PerfilRepository;
 import gov.ao.usp.features.Utilizador.service.PerfilService;
 import jakarta.validation.Valid;
@@ -60,12 +61,24 @@ public class AuthController {
      * 3. ROTA DE PERFIL COMPLETADA: Busca os dados complementares da nossa tabela do Postgres
      */
     @GetMapping("/utilizador/meu-perfil")
-    public ResponseEntity<Perfil> obterPerfilCompleto(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<PerfilResponseDTO> obterPerfilCompleto(@AuthenticationPrincipal Jwt jwt) {
         UUID userId = UUID.fromString(jwt.getSubject());
-        
-        return perfilRepository.findById(userId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Perfil perfil = perfilRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("Perfil não encontrado.") );
+
+        PerfilResponseDTO dto = new PerfilResponseDTO(
+            perfil.getId(),
+            perfil.getNome(),
+            perfil.getNip(),
+            jwt.getClaimAsString("email"),
+            jwt.getClaimAsString("email").split("@")[0],
+            perfil.getPerfil(),
+            perfil.getFkDepartamento().getPkDepartamento(),
+            perfil.getFkDepartamento().getDescricao(),
+            perfil.getUpdatedAt()
+        );
+
+        return ResponseEntity.ok(dto);
     }
 
     /**

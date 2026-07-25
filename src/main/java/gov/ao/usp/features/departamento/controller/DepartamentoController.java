@@ -17,10 +17,12 @@ import ao.jcardoso.libs.paginacao.PageRequestDTO;
 import ao.jcardoso.libs.paginacao.PageResponseDTO;
 import ao.jcardoso.libs.utils.http.ResponseHttp;
 import ao.jcardoso.libs.utils.http.ResponseHttpBuilder;
+
 import gov.ao.usp.features.departamento.modelo.dto.DepartamentoEditRequest;
 import gov.ao.usp.features.departamento.modelo.dto.DepartamentoRequest;
 import gov.ao.usp.features.departamento.modelo.dto.DepartamentoResponse;
 import gov.ao.usp.features.departamento.service.DepartamentoService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +36,7 @@ public class DepartamentoController {
 
     @PostMapping
     public ResponseEntity<ResponseHttp<DepartamentoResponse>> criar(
-            @RequestBody @Valid DepartamentoRequest req,
-        HttpServletRequest request) {
+            @RequestBody @Valid DepartamentoRequest req) {
         var response = service.criar(req);
         return ResponseHttpBuilder.ok(" Departamento criado com sucesso.", response);
     }
@@ -47,7 +48,7 @@ public class DepartamentoController {
     }
 
     @PatchMapping
-    public ResponseEntity<ResponseHttp<DepartamentoResponse>> editar(DepartamentoEditRequest req) {
+    public ResponseEntity<ResponseHttp<DepartamentoResponse>> editar( @RequestBody @Valid DepartamentoEditRequest req) {
         var response = service.editar(req);
         return ResponseHttpBuilder.ok("Departamento atualizado com sucesso.", response);
     }
