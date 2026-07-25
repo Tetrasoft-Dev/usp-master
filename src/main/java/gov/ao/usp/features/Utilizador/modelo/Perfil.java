@@ -16,6 +16,9 @@ public class Perfil {
     @Column(nullable = true)
     private String nome;
 
+    @Column(nullable = true)
+    private String username;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "perfil", nullable = false)
     private UserRole perfil = UserRole.ROLE_USER;
@@ -28,16 +31,25 @@ public class Perfil {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn( name = "fk_departamento", referencedColumnName = "pk_departamento", nullable = false )
-    private Departamento fkDepartamento;
+    private Departamento departamento;
 
     // Construtores
     public Perfil() {}
 
-    public Perfil(UUID id, String nome, UserRole perfil, String nip) {
+    public Perfil(
+        UUID id,
+        String nome,
+        String username,
+        UserRole perfil,
+        String nip,
+        Departamento departamento
+    ) {
         this.id = id;
         this.nome = nome;
+        this.username = username;
         this.perfil = perfil;
         this.nip = nip;
+        this.departamento = departamento;
         this.updatedAt = OffsetDateTime.now();
     }
 
@@ -48,6 +60,9 @@ public class Perfil {
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
     public String getNip() { return nip; }
     public void setNip(String nip) { this.nip = nip; }
 
@@ -57,6 +72,6 @@ public class Perfil {
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public Departamento getFkDepartamento() { return fkDepartamento; }
-    public void setFkDepartamento(Departamento fkDepartamento) { this.fkDepartamento = fkDepartamento; }
+    public Departamento getDepartamento() { return departamento; }
+    public void setDepartamento(Departamento departamento) { this.departamento = departamento; }
 }

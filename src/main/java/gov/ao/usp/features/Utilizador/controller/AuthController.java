@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import gov.ao.usp.features.Utilizador.modelo.Perfil;
+import gov.ao.usp.features.Utilizador.modelo.dto.CompletarPerfilRequest;
 import gov.ao.usp.features.Utilizador.modelo.dto.PerfilRequestDTO;
 import gov.ao.usp.features.Utilizador.modelo.dto.PerfilResponseDTO;
 import gov.ao.usp.features.Utilizador.repository.PerfilRepository;
@@ -73,8 +74,8 @@ public class AuthController {
             jwt.getClaimAsString("email"),
             jwt.getClaimAsString("email").split("@")[0],
             perfil.getPerfil(),
-            perfil.getFkDepartamento().getPkDepartamento(),
-            perfil.getFkDepartamento().getDescricao(),
+            perfil.getDepartamento().getPkDepartamento(),
+            perfil.getDepartamento().getDescricao(),
             perfil.getUpdatedAt()
         );
 
@@ -107,5 +108,14 @@ public class AuthController {
          Map<String, String> resposta = new HashMap<>();
         resposta.put("mensagem", "Acesso Concedido! Bem-vindo ao painel do Receptor de Artigos.");
         return ResponseEntity.ok(resposta);
+   }
+
+   @PutMapping("/completar-perfil")
+   public ResponseEntity<PerfilResponseDTO> completarPerfil(
+        @AuthenticationPrincipal Jwt jwt,
+        @Valid @RequestBody CompletarPerfilRequest request) {
+
+       PerfilResponseDTO response = service.completarPerfil(jwt, request);
+       return ResponseEntity.ok(response);
    }
 }

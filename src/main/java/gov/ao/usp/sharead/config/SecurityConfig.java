@@ -48,8 +48,10 @@ public class SecurityConfig {
             
             // Configura as regras de acesso às rotas
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/publico/**").permitAll() // Rotas de livre acesso
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Bloqueado, apenas administradores
+                .requestMatchers("/api/usp/publico/**").permitAll() // Rotas de livre acesso
+                .requestMatchers("/api/usp/v1/departamento/pesquisar/**").permitAll() // Rotas de livre acesso
+                .requestMatchers("/api/usp/v1/auth/completar-perfil**").permitAll() // Rotas de livre acesso
+                .requestMatchers("/api/usp/admin/**").hasRole("ADMIN") // Bloqueado, apenas administradores
                 .requestMatchers("/api/receptor/**").hasRole("RECEPTOR")                    
                 .anyRequest().authenticated() // Qualquer outra rota exige login (JWT)
             )
