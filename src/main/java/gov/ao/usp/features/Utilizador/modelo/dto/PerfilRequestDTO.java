@@ -2,11 +2,12 @@ package gov.ao.usp.features.Utilizador.modelo.dto;
 
 import java.util.UUID;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import gov.ao.usp.features.Utilizador.modelo.UserRole;
 
-@Data
-public class PerfilRequestDTO {
-    @NotBlank(message = "O nome não pode estar vazio")
-    private String nome;
-}
+public record PerfilRequestDTO(
+    String nome,
+    String username,
+    String nip,
+    UUID departamentoId,
+    UserRole perfil
+) {}

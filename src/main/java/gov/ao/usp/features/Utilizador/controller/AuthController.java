@@ -12,14 +12,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ao.jcardoso.libs.paginacao.PageRequestDTO;
+import ao.jcardoso.libs.paginacao.PageResponseDTO;
+import ao.jcardoso.libs.utils.http.ResponseHttp;
+import ao.jcardoso.libs.utils.http.ResponseHttpBuilder;
 import gov.ao.usp.features.Utilizador.modelo.Perfil;
+import gov.ao.usp.features.Utilizador.modelo.UserRole;
 import gov.ao.usp.features.Utilizador.modelo.dto.CompletarPerfilRequest;
 import gov.ao.usp.features.Utilizador.modelo.dto.PerfilRequestDTO;
 import gov.ao.usp.features.Utilizador.modelo.dto.PerfilResponseDTO;
 import gov.ao.usp.features.Utilizador.repository.PerfilRepository;
 import gov.ao.usp.features.Utilizador.service.PerfilService;
+import gov.ao.usp.features.departamento.modelo.dto.DepartamentoResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -94,11 +101,11 @@ public class AuthController {
     }
 
     @PutMapping("/atualizar")
-    public ResponseEntity<Perfil> atualizarNomeDoUtilizador(
+    public ResponseEntity<PerfilResponseDTO> atualizarNomeDoUtilizador(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody PerfilRequestDTO request) {
         
-        Perfil perfilAtualizado = service.atualizarPerfilPrincipal(jwt, request);
+        PerfilResponseDTO perfilAtualizado = service.atualizarPerfilPrincipal(jwt, request);
         return ResponseEntity.ok(perfilAtualizado);
     }
 
@@ -118,4 +125,37 @@ public class AuthController {
        PerfilResponseDTO response = service.completarPerfil(jwt, request);
        return ResponseEntity.ok(response);
    }
+
+    @GetMapping("/pesquisar")
+    public ResponseEntity<ResponseHttp<PageResponseDTO<PerfilResponseDTO>>> listar(
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "updatedAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String direction,
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String nip,
+            @RequestParam(required = false) UserRole perfil,
+            @RequestParam(required = false) UUID departamentoId
+    ) {
+
+        PageRequestDTO dto = new PageRequestDTO();
+
+        dto.setPage(page);
+        dto.setSize(size);
+        dto.setSortBy(sortBy);
+        dto.setDirection(direction);
+
+        var response = service.pesquisar(
+                dto,
+                nome,
+                username,
+                nip,
+                perfil,
+                departamentoId
+        );
+
+        return ResponseHttpBuilder.ok("Lista de utilizadores carregada com sucesso.",response);
+    }
 }
