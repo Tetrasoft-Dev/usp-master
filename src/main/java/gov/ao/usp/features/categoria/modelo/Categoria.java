@@ -1,6 +1,7 @@
 package gov.ao.usp.features.categoria.modelo;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -34,6 +35,6 @@ public class Categoria {
     @Column(name = "status")
     private Boolean status;
 
-    @Column(name = "data_de_registro", nullable = true)
-    private LocalDateTime dataDeRegistro;
+    @Column(name = "data_de_registro")
+    private OffsetDateTime dataDeRegistro = OffsetDateTime.now();
 }

@@ -63,13 +63,8 @@ public class CategoriaServiceImpl implements CategoriaService {
     public CategoriaResponse editar(CategoriaEditRequest req) {
         log.info("Editar uma categoria: {}", req.getAbreviacao());
         var categoria = reppository.findById(req.getId()).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
-
-        if(reppository.existsByAbreviacao(categoria.getAbreviacao())){
-            log.warn("Já existe uma categora como a descrição: {}", req.getAbreviacao());
-            throw new BusinessException("Já existe uma categora como a descrição: " + req.getAbreviacao());
-        }
-
         editMapper.updateEntityFromDto(req, categoria);
+        categoria.setStatus(Boolean.TRUE);
         var categoriaSalva = reppository.save(categoria);
         service.registrar( "Categoria", "Editar", categoria.getPkCategoria() );
         log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());

@@ -62,7 +62,7 @@ public class CategoriaController {
     public ResponseEntity<ResponseHttp<PageResponseDTO<CategoriaResponse>>> listar(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
-        @RequestParam(defaultValue = "createdDate") String sortBy,
+        @RequestParam(defaultValue = "dataDeRegistro") String sortBy,
         @RequestParam(defaultValue = "DESC") String direction,
         @RequestParam(required = false) String descricao, @RequestParam(required = false) Boolean status) {
 

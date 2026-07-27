@@ -46,7 +46,7 @@ public class PerfilServiceImpl implements PerfilService{
 
         Departamento departamento = departamentoRepository.findById(dto.departamentoId())
                 .orElseThrow(() -> new EntityNotFoundException("Departamento não encontrado"));
-
+        perfil.setId(userId);
         perfil.setNome(dto.nome());
         perfil.setUsername(dto.username());
         perfil.setNip(dto.nip());
