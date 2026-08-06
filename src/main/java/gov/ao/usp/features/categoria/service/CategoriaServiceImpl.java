@@ -46,42 +46,46 @@ public class CategoriaServiceImpl implements CategoriaService {
             throw new BusinessException("Já existe uma categora como a descrição: " + req.getAbreviacao());
         }
         
-        Categoria categoria = mapper.toEntity(req);
-        categoria.setPkCategoria(UUID.randomUUID());
-        categoria.setStatus(Boolean.TRUE);
-        var categoriaSalva = reppository.save(categoria);
+        Categoria entity = mapper.toEntity(req);
+        entity.setPkCategoria(UUID.randomUUID());
+        entity.setStatus(Boolean.TRUE);
+        var entitySalva = reppository.save(entity);
 
-        service.registrar( "Categoria", "Criar", categoria.getPkCategoria() );
+        service.registrar( "Categoria", "Registo Salvo", entity.getPkCategoria() );
         
-        log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());
+        log.info("Categoria criada com sucesso: {}", entity.getAbreviacao());
 
-        return mapper.toResponse(categoriaSalva);
+        return mapper.toResponse(entitySalva);
     }
 
     @Override
     @Transactional
     public CategoriaResponse editar(CategoriaEditRequest req) {
         log.info("Editar uma categoria: {}", req.getAbreviacao());
-        var categoria = reppository.findById(req.getId()).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
-        editMapper.updateEntityFromDto(req, categoria);
-        categoria.setStatus(Boolean.TRUE);
-        var categoriaSalva = reppository.save(categoria);
-        service.registrar( "Categoria", "Editar", categoria.getPkCategoria() );
-        log.info("Categoria criada com sucesso: {}", categoria.getAbreviacao());
-        return mapper.toResponse(categoriaSalva);
+        var categoriaExistente = reppository.findById(req.getId()).orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
+        if(reppository.existsByAbreviacao(req.getAbreviacao())){
+            log.warn("Já existe uma categora como a descrição: {}", req.getAbreviacao());
+            throw new BusinessException("Já existe uma categora como a descrição: " + req.getAbreviacao());
+        }
+        editMapper.updateEntityFromDto(req, categoriaExistente);
+        categoriaExistente.setStatus(Boolean.TRUE);
+        reppository.save(categoriaExistente);
+        service.registrar( "Categoria", "Registro Editando", categoriaExistente.getPkCategoria() );
+        log.info("Categoria criada com sucesso: {}", categoriaExistente.getAbreviacao());
+        return mapper.toResponse(categoriaExistente);
     }
 
     @Override
     @Transactional
     public CategoriaResponse eliminar(UUID id) {
         log.info("Eliminar categoria: {}", id);
-        var categoria = reppository.findById(id)
+        var categoriaExistente = reppository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
-        categoria.setStatus(false);
-        reppository.save(categoria);
-        service.registrar( "Categoria", "Eliminar", categoria.getPkCategoria() );
+        categoriaExistente.setStatus(false);
+        reppository.save(categoriaExistente);
+        service.registrar( "Categoria", "Registro Eliminado", categoriaExistente.getPkCategoria() );
         log.info("Eliminada a categoria: {}", id);
-        return mapper.toResponse(categoria);
+        return mapper.toResponse(categoriaExistente);
     }
 
     @Override

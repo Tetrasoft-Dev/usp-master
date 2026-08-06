@@ -1,6 +1,5 @@
 package gov.ao.usp.features.categoria.modelo;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -37,4 +36,6 @@ public class Categoria {
 
     @Column(name = "data_de_registro")
     private OffsetDateTime dataDeRegistro = OffsetDateTime.now();
+
+    public Categoria(UUID pkCategoria){this.pkCategoria = pkCategoria;}
 }

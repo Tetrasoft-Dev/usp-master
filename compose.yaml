@@ -99,6 +99,13 @@ services:
     ports:
       - "3000:3000"
 
+  usp-api:
+    image: openjdk:17-jdk-slim # ou a imagem que usares
+    volumes:
+      - ./uploads:/app/uploads # Mapeia uma pasta local para dentro do Docker
+    ports:
+      - "8080:8080"      
+
 volumes:
   supabase_db_data:
     driver: local

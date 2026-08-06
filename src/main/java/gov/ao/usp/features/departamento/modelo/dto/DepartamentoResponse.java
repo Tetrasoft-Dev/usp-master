@@ -1,6 +1,5 @@
 package gov.ao.usp.features.departamento.modelo.dto;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
