@@ -86,12 +86,12 @@ public class ArtigoController {
         return ResponseHttpBuilder.ok("Lista carregada com sucesso.", response);
     }
 
-    @PutMapping("/{id}/stock")
+   /*  @PutMapping("/{id}/stock")
     public ResponseEntity<ResponseHttp<ArtigoResponse>> atualizarQuantidade(
             @PathVariable UUID id,
             @RequestBody @Valid ArtigoAtualizarStockRequest req) {
         
         var response = service.atualizarQuantidade(id, req.getQuantidade(), req.getQuantidadeDanificada(), req.getEstado());
         return ResponseHttpBuilder.ok("Quantidade de stock atualizada com sucesso.", response);
-    }
+    }*/
 }

@@ -9,6 +9,7 @@ import ao.jcardoso.libs.paginacao.PageResponseDTO;
 import gov.ao.usp.features.artigo.modelo.dto.ArtigoEditRequest;
 import gov.ao.usp.features.artigo.modelo.dto.ArtigoRequest;
 import gov.ao.usp.features.artigo.modelo.dto.ArtigoResponse;
+import gov.ao.usp.features.solicitacao.modelo.EstadoSolicitacao;
 
 public interface ArtigoService {
     
@@ -22,5 +23,5 @@ public interface ArtigoService {
 
     PageResponseDTO<ArtigoResponse> pesquisaEspecifica(PageRequestDTO req, String nome, UUID idCategoria, Boolean status);
 
-    ArtigoResponse atualizarQuantidade(UUID id, Integer quantidade, Integer quantidadeDanificada, String estado);
+    ArtigoResponse atualizarQuantidade(UUID id, Integer quantidade, Integer quantidadeDanificada, EstadoSolicitacao estado);
 }

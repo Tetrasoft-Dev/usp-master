@@ -20,6 +20,7 @@ import gov.ao.usp.features.artigo.modelo.dto.ArtigoResponse;
 import gov.ao.usp.features.artigo.repository.ArtigoRepository;
 import gov.ao.usp.features.auditoria.service.AuditoriaService;
 import gov.ao.usp.features.categoria.modelo.Categoria;
+import gov.ao.usp.features.solicitacao.modelo.EstadoSolicitacao;
 import ao.jcardoso.libs.exception.BusinessException;
 import ao.jcardoso.libs.exception.ResourceNotFoundException;
 
@@ -152,13 +153,13 @@ public class ArtigoServiceImpl implements ArtigoService {
     }
 
     @Override
-    public ArtigoResponse atualizarQuantidade(UUID id, Integer quantidade, Integer quantidadeDanificada,String estado) {
+    public ArtigoResponse atualizarQuantidade(UUID id, Integer quantidade, Integer quantidadeDanificada,EstadoSolicitacao estado) {
         log.info("Operação de atualização de stock: {}", estado);
 
         var artigoExistente = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo não encontrado."));
 
-        if ("Aprovado".equalsIgnoreCase(estado)) {
+        if (estado == EstadoSolicitacao.APROVADO) {
             // Correção da lógica: deve haver stock disponível MAIOR ou IGUAL à quantidade
             // solicitada
             if (artigoExistente.getQuantidadeStockDisponivel() >= quantidade) {
@@ -170,7 +171,7 @@ public class ArtigoServiceImpl implements ArtigoService {
                 throw new BusinessException(
                         "Não existe quantidade suficiente para aprovação ou reduza a quantidade solicitada.");
             }
-        } else if ("Devolução".equalsIgnoreCase(estado)) {
+        } else if (estado == EstadoSolicitacao.DEVOLUCAO) {
             if (quantidade != null && quantidade != 0) {
                 artigoExistente
                         .setQuantidadeStockDisponivel(artigoExistente.getQuantidadeStockDisponivel() + quantidade);
