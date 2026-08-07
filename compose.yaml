@@ -100,7 +100,7 @@ services:
       - "3000:3000"
 
   usp-api:
-    image: openjdk:17-jdk-slim # ou a imagem que usares
+    image: eclipse-temurin:17-jdk-jammy
     volumes:
       - ./uploads:/app/uploads # Mapeia uma pasta local para dentro do Docker
     ports:

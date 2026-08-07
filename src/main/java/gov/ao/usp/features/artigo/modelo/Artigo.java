@@ -59,6 +59,6 @@ public class Artigo {
     private OffsetDateTime dataRegistro = OffsetDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn( name = "fk_categoria", referencedColumnName = "pk_categoria    ", nullable = false )
+    @JoinColumn( name = "fk_categoria", referencedColumnName = "pk_categoria", nullable = false )
     private Categoria categoria;
 }

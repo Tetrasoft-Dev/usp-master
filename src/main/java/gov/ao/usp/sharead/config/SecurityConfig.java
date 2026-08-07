@@ -19,10 +19,9 @@ import java.util.List;
 
 import javax.crypto.spec.SecretKeySpec;
 
-
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity 
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
@@ -37,45 +36,61 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Ativa o CORS com a configuração definida abaixo
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            
-            // Desativa CSRF porque APIs REST com JWT não guardam sessões no servidor
-            .csrf(csrf -> csrf.disable())
-            
-            // Define o Spring como Stateless (sem estado)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // Configura as regras de acesso às rotas
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/usp/publico/**").permitAll() // Rotas de livre acesso
-                .requestMatchers("/api/usp/v1/departamento/pesquisar/**").permitAll() // Rotas de livre acesso
-                .requestMatchers("/api/usp/v1/auth/completar-perfil**").permitAll() // Rotas de livre acesso
-                .requestMatchers("/api/usp/admin/**").hasRole("ADMIN") // Bloqueado, apenas administradores
-                .requestMatchers("/api/receptor/**").hasRole("RECEPTOR")
-                .requestMatchers("/api/usp/v1/auth/pesquisar/**").permitAll() // Rotas de livre acesso
-                .anyRequest().authenticated() // Qualquer outra rota exige login (JWT)
-            )
-            
-            // Ativa o Resource Server para processar tokens OAuth2/JWT
-            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
-                .decoder(jwtDecoder())
-                .jwtAuthenticationConverter(jwtAuthenticationConverter())
-            ));
+                // 1. Ativa o CORS com a configuração definida abaixo
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Desativa CSRF porque APIs REST com JWT não guardam sessões no servidor
+                .csrf(csrf -> csrf.disable())
+
+                // Define o Spring como Stateless (sem estado)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Configura as regras de acesso às rotas
+                .authorizeHttpRequests(auth -> auth
+                        // 🔥 CORREÇÃO 1: Permite que TODOS os pedidos OPTIONS passem direto sem pedir
+                        // JWT
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Rotas de livre acesso existentes
+                        .requestMatchers("/api/usp/publico/**").permitAll()
+                        .requestMatchers("/api/usp/v1/departamento/pesquisar/**").permitAll()
+                        .requestMatchers("/api/usp/v1/auth/completar-perfil**").permitAll()
+                        .requestMatchers("/api/usp/v1/auth/pesquisar/**").permitAll()
+
+                        // 🔥 CORREÇÃO 2: Libera a rota de pesquisa ou criação de artigos caso ela
+                        // precise de ser pública
+                        // ou ajusta conforme as roles. (Exemplo: se o ecrã está na rota
+                        // /api/usp/v1/artigo)
+                        // Se queres que RECEPTOR gerencie artigos, adiciona:
+                        // .requestMatchers("/api/usp/v1/artigo/**").hasAnyRole("RECEPTOR", "ADMIN")
+
+                        // Bloqueados por Role
+                        .requestMatchers("/api/usp/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/receptor/**").hasRole("RECEPTOR")
+
+                        .anyRequest().authenticated() // Qualquer outra rota exige login (JWT)
+                )
+
+                // Ativa o Resource Server para processar tokens OAuth2/JWT
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
+                        .decoder(jwtDecoder())
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         return http.build();
     }
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        // Configura o descodificador local usando o algoritmo HMAC-SHA256 padrão do Supabase
+        // Configura o descodificador local usando o algoritmo HMAC-SHA256 padrão do
+        // Supabase
         SecretKeySpec secretKey = new SecretKeySpec(jwtSecret.getBytes(), "HMACSHA256");
         return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        // Une o nosso conversor de perfis personalizado ao fluxo de autenticação do Spring
+        // Une o nosso conversor de perfis personalizado ao fluxo de autenticação do
+        // Spring
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(supabaseAuthoritiesConverter);
         return converter;
@@ -85,19 +100,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Adicione aqui o URL do seu frontend do Codespaces e localhost (se testar localmente)
+
+        // Adicione aqui o URL do seu frontend do Codespaces e localhost (se testar
+        // localmente)
         configuration.setAllowedOrigins(List.of(
-            "https://cuddly-goggles-v6xrgrv5rvx9hwrrj-3000.app.github.dev",
-            "http://localhost:3000"
-        ));
-        
+                "https://cuddly-goggles-v6xrgrv5rvx9hwrrj-3000.app.github.dev",
+                "http://localhost:3000"));
+
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        
-        // Cabeçalhos permitidos (essencial incluir Authorization para o JWT e Content-Type)
+
+        // Cabeçalhos permitidos (essencial incluir Authorization para o JWT e
+        // Content-Type)
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
-        
+
         // Permite envio de cookies/credenciais se necessário
         configuration.setAllowCredentials(true);
 

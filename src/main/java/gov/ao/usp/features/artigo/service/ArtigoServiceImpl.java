@@ -59,6 +59,7 @@ public class ArtigoServiceImpl implements ArtigoService {
         entity.setQuantidadeStockDisponivel(req.getQuantidadeStock());
         entity.setCategoria(new Categoria(req.getIdCategoria()));
         entity.setStatus(Boolean.TRUE);
+        entity.setName(req.getNome());
 
         // LÓGICA DE SALVAR A IMAGEM NO DOCKER
         if (imagem != null && !imagem.isEmpty()) {
@@ -77,7 +78,9 @@ public class ArtigoServiceImpl implements ArtigoService {
 
         var artigoExistente = repository.findById(req.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Artigo não encontrado."));
-
+        int total = artigoExistente.getQuantidadeStock()+ req.getQuantidadeStock(); 
+        int totalDisponivel = artigoExistente.getQuantidadeStockDisponivel();       
+        editMapper.updateEntityFromDto(req, artigoExistente);
         // Se o nome mudou, valida duplicação
         if (!artigoExistente.getNome().equalsIgnoreCase(req.getNome()) && repository.existsByNome(req.getNome())) {
             log.warn("Já existe um artigo com a descrição: {}", req.getNome());
@@ -85,10 +88,9 @@ public class ArtigoServiceImpl implements ArtigoService {
         }
 
         if (req.getQuantidadeStock() != null && req.getQuantidadeStock() != 0) {
-            int total = artigoExistente.getQuantidadeStock();
-            artigoExistente.setQuantidadeStock(total + req.getQuantidadeStock());
-
-            int totalDisponivel = artigoExistente.getQuantidadeStockDisponivel();
+            
+            System.out.println("total : "+ total);
+            artigoExistente.setQuantidadeStock(total);
             artigoExistente.setQuantidadeStockDisponivel(totalDisponivel + req.getQuantidadeStock());
         }
 
@@ -97,8 +99,8 @@ public class ArtigoServiceImpl implements ArtigoService {
             String nomeImagemSalva = salvarImagemNoDisco(imagem);
             artigoExistente.setPathImagen("/uploads/" + nomeImagemSalva); // Guarda o URL relativo no banco
         }
-
-        editMapper.updateEntityFromDto(req, artigoExistente);
+        
+        artigoExistente.setName(req.getNome());
         artigoExistente.setStatus(Boolean.TRUE);
 
         repository.save(artigoExistente);
@@ -144,7 +146,7 @@ public class ArtigoServiceImpl implements ArtigoService {
         Specification<Artigo> spec = ArtigoSpecifications.filtrar(nome, idCategoria, status);
         Page<Artigo> page = repository.findAll(spec, pageable);
 
-        auditoriaService.registrar("Artigo", "BuscarListaDeArtigos", null);
+        //auditoriaService.registrar("Artigo", "BuscarListaDeArtigos", null);
         log.info("Artigos listados com sucesso. Total de registos encontrados: {}", page.getTotalElements());
         return PaginationUtils.buildPageResponse(page, mapper::toResponse);
     }

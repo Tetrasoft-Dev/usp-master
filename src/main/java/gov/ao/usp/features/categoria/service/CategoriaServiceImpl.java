@@ -108,7 +108,7 @@ public class CategoriaServiceImpl implements CategoriaService {
         Specification<Categoria> spec = CategoriaSpecifications.filtrar(descricao, status);
         
         Page<Categoria> page = reppository.findAll(spec, pageable);
-        service.registrar( "Categoria", "BurcarListaDeCategoria", null );
+       // service.registrar( "Categoria", "BurcarListaDeCategoria", null );
         log.info("Categorias listados com sucesso. Total de registos encontrados: {}", page.getTotalElements());
         return PaginationUtils.buildPageResponse(page, mapper::toResponse);
     }
