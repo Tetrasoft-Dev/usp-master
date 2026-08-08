@@ -290,4 +290,54 @@ public class SolicitacaoServiceImpl implements SolicitacaoService {
                 mapper::toResponse);
     }
 
+    @Override
+@Transactional
+public SolicitacaoResponse cancelar(UUID id, Jwt jwt) {
+
+        UUID utilizadorId = UUID.fromString(jwt.getSubject());
+
+        Solicitacao solicitacao = repository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Solicitação não encontrada."
+                        )
+                );
+
+        // Garante que a solicitação pertence ao utilizador autenticado
+        if (!solicitacao.getPerfil().getId().equals(utilizadorId)) {
+                throw new BusinessException(
+                        "Não tem permissão para cancelar esta solicitação."
+                );
+        }
+
+        // Só pode cancelar solicitações ainda em processo
+        if (solicitacao.getEstadoDaSolicitacao() != EstadoSolicitacao.SOLICITACAO
+                && solicitacao.getEstadoDaSolicitacao() != EstadoSolicitacao.VISUALIZADOS) {
+
+                throw new BusinessException(
+                        "Esta solicitação não pode mais ser cancelada."
+                );
+        }
+
+        solicitacao.setEstadoDaSolicitacao(
+                EstadoSolicitacao.CANCELADOS
+        );
+
+        Solicitacao salva = repository.save(solicitacao);
+
+        auditoriaService.registrar(
+                "Solicitação",
+                "Cancelar Solicitação",
+                salva.getPkSolicitacao()
+        );
+
+        log.info(
+                "Solicitação {} cancelada pelo utilizador {}",
+                id,
+                utilizadorId
+        );
+
+        return mapper.toResponse(salva);
+        }
+
 }

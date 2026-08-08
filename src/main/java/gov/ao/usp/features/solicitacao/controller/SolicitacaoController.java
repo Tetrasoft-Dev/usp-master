@@ -179,4 +179,31 @@ public class SolicitacaoController {
                 response);
     }
 
+
+    @PatchMapping("/{id}/cancelar")
+public ResponseEntity<ResponseHttp<SolicitacaoResponse>> cancelar(
+        @PathVariable UUID id,
+        @AuthenticationPrincipal Jwt jwt) {
+
+    var response = service.cancelar(id, jwt);
+
+    return ResponseHttpBuilder.ok(
+            "Solicitação cancelada com sucesso.",
+            response
+    );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

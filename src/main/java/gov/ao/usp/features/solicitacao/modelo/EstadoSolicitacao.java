@@ -4,5 +4,7 @@ public enum EstadoSolicitacao {
     SOLICITACAO,
     APROVADO,
     REJEITADO,
-    DEVOLUCAO
+    DEVOLUCAO,
+    VISUALIZADOS,
+    CANCELADOS
 }
