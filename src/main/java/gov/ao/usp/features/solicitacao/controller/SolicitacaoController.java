@@ -3,6 +3,7 @@ package gov.ao.usp.features.solicitacao.controller;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import ao.jcardoso.libs.utils.http.ResponseHttpBuilder;
 import gov.ao.usp.features.solicitacao.modelo.EstadoSolicitacao;
 import gov.ao.usp.features.solicitacao.modelo.TipoSolicitacao;
 import gov.ao.usp.features.solicitacao.modelo.dto.DevolucaoRequest;
+import gov.ao.usp.features.solicitacao.modelo.dto.SolicitacaoEstatisticasResponse;
 import gov.ao.usp.features.solicitacao.modelo.dto.SolicitacaoRequest;
 import gov.ao.usp.features.solicitacao.modelo.dto.SolicitacaoResponse;
 import gov.ao.usp.features.solicitacao.service.SolicitacaoService;
@@ -181,29 +183,27 @@ public class SolicitacaoController {
 
 
     @PatchMapping("/{id}/cancelar")
-public ResponseEntity<ResponseHttp<SolicitacaoResponse>> cancelar(
-        @PathVariable UUID id,
-        @AuthenticationPrincipal Jwt jwt) {
-
+    public ResponseEntity<ResponseHttp<SolicitacaoResponse>> cancelar(
+        @PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) 
+    {
     var response = service.cancelar(id, jwt);
+    return ResponseHttpBuilder.ok( "Solicitação cancelada com sucesso.",response);
 
-    return ResponseHttpBuilder.ok(
-            "Solicitação cancelada com sucesso.",
-            response
-    );
-}
+   }
 
+   @GetMapping("/estatisticas")
+   public ResponseEntity<ResponseHttp<SolicitacaoEstatisticasResponse>> estatisticas(
+                @AuthenticationPrincipal Jwt jwt,
+                @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                LocalDateTime dataInicio,
+                @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                LocalDateTime dataFim
+    ) {
 
+        var response = service.estatisticas(jwt, dataInicio, dataFim);
 
-
-
-
-
-
-
-
-
-
-
-
+        return ResponseHttpBuilder.ok("Estatísticas das solicitações carregadas com sucesso.", response);
+    }
 }

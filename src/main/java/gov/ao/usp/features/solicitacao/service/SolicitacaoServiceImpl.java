@@ -39,6 +39,7 @@ import gov.ao.usp.features.solicitacao.modelo.TipoSolicitacao;
 import gov.ao.usp.features.solicitacao.modelo.dto.DevolucaoItemRequest;
 import gov.ao.usp.features.solicitacao.modelo.dto.DevolucaoRequest;
 import gov.ao.usp.features.solicitacao.modelo.dto.ItemSolicitacaoRequest;
+import gov.ao.usp.features.solicitacao.modelo.dto.SolicitacaoEstatisticasResponse;
 import gov.ao.usp.features.solicitacao.modelo.dto.SolicitacaoRequest;
 import gov.ao.usp.features.solicitacao.modelo.dto.SolicitacaoResponse;
 import gov.ao.usp.features.solicitacao.repository.SolicitacaoRepository;
@@ -291,53 +292,82 @@ public class SolicitacaoServiceImpl implements SolicitacaoService {
     }
 
     @Override
-@Transactional
-public SolicitacaoResponse cancelar(UUID id, Jwt jwt) {
+    @Transactional
+    public SolicitacaoResponse cancelar(UUID id, Jwt jwt) {
 
         UUID utilizadorId = UUID.fromString(jwt.getSubject());
 
         Solicitacao solicitacao = repository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Solicitação não encontrada."
-                        )
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitação não encontrada.") );
 
-        // Garante que a solicitação pertence ao utilizador autenticado
         if (!solicitacao.getPerfil().getId().equals(utilizadorId)) {
-                throw new BusinessException(
-                        "Não tem permissão para cancelar esta solicitação."
-                );
+           throw new BusinessException("Não tem permissão para cancelar esta solicitação." );
         }
 
-        // Só pode cancelar solicitações ainda em processo
         if (solicitacao.getEstadoDaSolicitacao() != EstadoSolicitacao.SOLICITACAO
                 && solicitacao.getEstadoDaSolicitacao() != EstadoSolicitacao.VISUALIZADOS) {
 
-                throw new BusinessException(
-                        "Esta solicitação não pode mais ser cancelada."
-                );
+                throw new BusinessException("Esta solicitação não pode mais ser cancelada.");
         }
 
-        solicitacao.setEstadoDaSolicitacao(
-                EstadoSolicitacao.CANCELADOS
-        );
-
+        solicitacao.setEstadoDaSolicitacao(EstadoSolicitacao.CANCELADOS);
         Solicitacao salva = repository.save(solicitacao);
 
-        auditoriaService.registrar(
-                "Solicitação",
-                "Cancelar Solicitação",
-                salva.getPkSolicitacao()
-        );
+        auditoriaService.registrar("Solicitação",
+                "Cancelar Solicitação", salva.getPkSolicitacao());
 
-        log.info(
-                "Solicitação {} cancelada pelo utilizador {}",
-                id,
-                utilizadorId
-        );
+        log.info( "Solicitação {} cancelada pelo utilizador {}", id, utilizadorId);
 
         return mapper.toResponse(salva);
-        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SolicitacaoEstatisticasResponse estatisticas(
+        Jwt jwt,
+        LocalDateTime dataInicio,
+        LocalDateTime dataFim) {
+
+        UUID utilizadorId = UUID.fromString(jwt.getSubject());
+
+        List<Solicitacao> solicitacoes =
+                repository.findAll(
+                        SolicitacaoSpecifications.filtrar(
+                        null,
+                        null,
+                        utilizadorId,
+                        null,
+                        null,
+                        null,
+                        null,
+                        dataInicio,
+                        dataFim,
+                        true)
+                );
+
+        long total = solicitacoes.size();
+        long solicitacao = solicitacoes.stream()
+                .filter(s -> s.getEstadoDaSolicitacao()
+                        == EstadoSolicitacao.SOLICITACAO).count();
+        long aprovadas = solicitacoes.stream()
+                .filter(s -> s.getEstadoDaSolicitacao()
+                        == EstadoSolicitacao.APROVADO).count();
+        long rejeitadas = solicitacoes.stream()
+                .filter(s -> s.getEstadoDaSolicitacao()
+                        == EstadoSolicitacao.REJEITADO).count();
+        long devolvidas = solicitacoes.stream()
+                .filter(s -> s.getEstadoDaSolicitacao()
+                        == EstadoSolicitacao.DEVOLUCAO).count();
+        long visualizadas = solicitacoes.stream()
+                .filter(s -> s.getEstadoDaSolicitacao()
+                        == EstadoSolicitacao.VISUALIZADOS).count();
+        long canceladas = solicitacoes.stream()
+                .filter(s -> s.getEstadoDaSolicitacao()
+                        == EstadoSolicitacao.CANCELADOS).count();
+        return new SolicitacaoEstatisticasResponse(
+                total, solicitacao, aprovadas,
+                rejeitadas, devolvidas, visualizadas,
+                canceladas);
+    }
 
 }
