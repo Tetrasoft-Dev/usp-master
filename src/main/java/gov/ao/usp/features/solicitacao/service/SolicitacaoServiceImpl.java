@@ -345,23 +345,23 @@ public class SolicitacaoServiceImpl implements SolicitacaoService {
                         true)
                 );
 
-        long total = solicitacoes.size();
-        long solicitacao = solicitacoes.stream()
+        Integer total = solicitacoes.size();
+        int solicitacao = (int) solicitacoes.stream()
                 .filter(s -> s.getEstadoDaSolicitacao()
                         == EstadoSolicitacao.SOLICITACAO).count();
-        long aprovadas = solicitacoes.stream()
+        int aprovadas = (int) solicitacoes.stream()
                 .filter(s -> s.getEstadoDaSolicitacao()
                         == EstadoSolicitacao.APROVADO).count();
-        long rejeitadas = solicitacoes.stream()
+        int rejeitadas = (int) solicitacoes.stream()
                 .filter(s -> s.getEstadoDaSolicitacao()
                         == EstadoSolicitacao.REJEITADO).count();
-        long devolvidas = solicitacoes.stream()
+        int devolvidas = (int) solicitacoes.stream()
                 .filter(s -> s.getEstadoDaSolicitacao()
                         == EstadoSolicitacao.DEVOLUCAO).count();
-        long visualizadas = solicitacoes.stream()
+        int visualizadas = (int) solicitacoes.stream()
                 .filter(s -> s.getEstadoDaSolicitacao()
                         == EstadoSolicitacao.VISUALIZADOS).count();
-        long canceladas = solicitacoes.stream()
+        int canceladas = (int) solicitacoes.stream()
                 .filter(s -> s.getEstadoDaSolicitacao()
                         == EstadoSolicitacao.CANCELADOS).count();
         return new SolicitacaoEstatisticasResponse(
