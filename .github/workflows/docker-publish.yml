@@ -28,21 +28,21 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_TOKEN: ${{ secrets.MAVEN_TOKEN }}
         run: |
-          cat > maven-settings.xml <<EOF
-          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                    http://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-            <servers>
-              <server>
-                <id>github</id>
-                <username>${MAVEN_USERNAME}</username>
-                <password>${MAVEN_TOKEN}</password>
-              </server>
-            </servers>
-
-          </settings>
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="UTF-8"?>' \
+            '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"' \
+            '          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' \
+            '          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0' \
+            '          https://maven.apache.org/xsd/settings-1.0.0.xsd">' \
+            '  <servers>' \
+            '    <server>' \
+            '      <id>github</id>' \
+            "      <username>${MAVEN_USERNAME}</username>" \
+            "      <password>${MAVEN_TOKEN}</password>" \
+            '    </server>' \
+            '  </servers>' \
+            '</settings>' \
+            > maven-settings.xml
           EOF
 
       - name: Set up Docker Buildx
