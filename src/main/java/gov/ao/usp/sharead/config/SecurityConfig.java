@@ -14,7 +14,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.nio.charset.StandardCharsets;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -26,6 +28,9 @@ public class SecurityConfig {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String jwtSecret;
+
+    @Value("${app.cors.origins}")
+    private String corsOrigins;
 
     private final SupabaseAuthoritiesConverter supabaseAuthoritiesConverter;
 
@@ -81,9 +86,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        // Configura o descodificador local usando o algoritmo HMAC-SHA256 padrão do
-        // Supabase
-        SecretKeySpec secretKey = new SecretKeySpec(jwtSecret.getBytes(), "HMACSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec(jwtSecret.getBytes(StandardCharsets.UTF_8),"HmacSHA256");
         return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }
 
@@ -103,16 +106,14 @@ public class SecurityConfig {
 
         // Adicione aqui o URL do seu frontend do Codespaces e localhost (se testar
         // localmente)
-        configuration.setAllowedOrigins(List.of(
-                "https://cuddly-goggles-v6xrgrv5rvx9hwrrj-3000.app.github.dev",
-                "http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of(corsOrigins.split(",")));
 
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         // Cabeçalhos permitidos (essencial incluir Authorization para o JWT e
         // Content-Type)
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
 
         // Permite envio de cookies/credenciais se necessário
         configuration.setAllowCredentials(true);
