@@ -21,6 +21,27 @@ jobs:
 
     steps:
 
+      - name: Test frontend repository access
+        env:
+            FRONTEND_TOKEN: ${{ secrets.FRONTEND_REPO_TOKEN }}
+        run: |
+            STATUS=$(curl -sS \
+            -o /tmp/repo.json \
+            -w "%{http_code}" \
+            -H "Authorization: Bearer $FRONTEND_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/josetetrasoft/sistema-gestao-artigos)
+
+            echo "HTTP Status: $STATUS"
+
+            if [ "$STATUS" != "200" ]; then
+            echo "ERRO: o token nao consegue acessar o repositorio do frontend."
+            cat /tmp/repo.json
+            exit 1
+            fi
+
+            echo "Acesso ao repositorio do frontend confirmado."
+
       - name: Checkout frontend
         uses: actions/checkout@v4
         with:
