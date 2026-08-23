@@ -45,7 +45,7 @@ jobs:
       - name: Checkout frontend
         uses: actions/checkout@v4
         with:
-          repository: josetetrasoft/sistema-gestao-artigos
+          repository: Ademilicia95/sistema-gestao-artigos
           token: ${{ secrets.FRONTEND_REPO_TOKEN }}
           path: frontend
 
