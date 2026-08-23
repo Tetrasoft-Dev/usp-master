@@ -97,6 +97,7 @@ public class PerfilServiceImpl implements PerfilService{
     @Transactional(readOnly = true)
     public PageResponseDTO<PerfilResponseDTO> pesquisar(
         PageRequestDTO req,
+        
         String nome,
         String username,
         String nip,

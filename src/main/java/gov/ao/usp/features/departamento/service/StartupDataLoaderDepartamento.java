@@ -29,18 +29,18 @@ public class StartupDataLoaderDepartamento implements CommandLineRunner {
         String[] initDepartamento = {"Finanças", "GOSP", "GPP", "AUDITORIA", "PESSOAL E QUADRO", "TX", "CIM", "6SEXTA", "POSTO COMANDO", "ARMA TEC", "GESTÃO DE INFRAESTRUTURA"};
           
         List<Departamento> entity = new ArrayList<>();
-
-        for (String registro : initDepartamento) {
-
-            Departamento novoRegistro = new Departamento();
-
-            novoRegistro.setPkDepartamento(UUID.randomUUID());
-            novoRegistro.setAbreviacao(registro);
-            novoRegistro.setDescricao(registro);
-            novoRegistro.setStatus(Boolean.TRUE);
-
-            entity.add(novoRegistro);
+        if(departamentoRepository.findAll() != null){
+           
+            for (String registro : initDepartamento) {
+              Departamento novoRegistro = new Departamento();
+              novoRegistro.setPkDepartamento(UUID.randomUUID());
+              novoRegistro.setAbreviacao(registro);
+              novoRegistro.setDescricao(registro);
+              novoRegistro.setStatus(Boolean.TRUE);
+              entity.add(novoRegistro);
+           }
         }
+        
 
         departamentoRepository.saveAll(entity);
         log.info("Departamentos iniciais inseridos com sucesso!"); 
