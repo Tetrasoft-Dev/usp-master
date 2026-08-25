@@ -66,12 +66,13 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
 
-          build-args: |
-            NEXT_PUBLIC_BACKEND_URL=${{ vars.FRONTEND_BACKEND_URL }}
-            NEXT_PUBLIC_SUPABASE_URL=${{ vars.FRONTEND_SUPABASE_URL }}
-            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.FRONTEND_SUPABASE_ANON_KEY }}
-            SUPABASE_GOTRUE_URL=${{ vars.FRONTEND_AUTH_URL }}
+         # build-args: |
+         #   NEXT_PUBLIC_BACKEND_URL=${{ vars.FRONTEND_BACKEND_URL }}
+         #   NEXT_PUBLIC_SUPABASE_URL=${{ vars.FRONTEND_SUPABASE_URL }}
+         #   NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.FRONTEND_SUPABASE_ANON_KEY }}
+         #   SUPABASE_GOTRUE_URL=${{ vars.FRONTEND_AUTH_URL }}
 
           tags: |
             ghcr.io/tetrasoft-dev/usp-frontend:latest
             ghcr.io/tetrasoft-dev/usp-frontend:${{ github.sha }}
+            ghcr.io/tetrasoft-dev/usp-frontend:1.0.0
